@@ -2191,6 +2191,149 @@ export function Demo() {
   )
 }`,
   },
+  {
+    name: "Web Search",
+    href: "/components/websearch",
+    category: "ai",
+    isNew: true,
+    registry: "web-search",
+    description:
+      "The sources behind an AI answer, shown as a search pill, source cards, a streaming answer, and inline citations.",
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/web-search.tsx`,
+    dependencies: [
+      {
+        name: "motion",
+        icon: createElement(MotionIcon, { className: "h-4 w-4" }),
+      },
+    ],
+    interaction:
+      "Press Replay to watch a search run and the answer type itself out. Hover the favicons to fan them out, and hover a citation to preview its source.",
+    props: [
+      {
+        name: "sources",
+        type: "WebSource[]",
+        required: true,
+        description:
+          "The results, each an id, a title, and a url, plus an optional snippet and favicon. Without a favicon, a colored letter stands in.",
+      },
+      {
+        name: "status",
+        type: '"searching" | "done"',
+        default: '"done"',
+        options: ["searching", "done"],
+        description:
+          "Searching shimmers the label and holds empty slots for results still on the way.",
+      },
+      {
+        name: "query",
+        type: "string",
+        description: "Shown in the label while searching.",
+      },
+      {
+        name: "label",
+        type: "string",
+        description:
+          'Replaces the label. By default it reads "Searching the web", then "Searched 6 sites".',
+      },
+      {
+        name: "progress",
+        type: "number",
+        description:
+          "How far the search is, 0 to 1, drawn as the ring around the globe. Leave it out and the ring fills a step with each source.",
+      },
+      {
+        name: "linked",
+        type: "boolean",
+        default: "true",
+        description:
+          "Whether cards and citations open their source in a new tab. Turn it off to keep visitors on the page; the previews still work.",
+      },
+      {
+        name: "open",
+        type: "boolean",
+        description:
+          "Pass this to control whether the cards show. Pair it with onOpenChange.",
+      },
+      {
+        name: "defaultOpen",
+        type: "boolean",
+        default: "true",
+        description: "Whether the cards show on first render.",
+      },
+      {
+        name: "onOpenChange",
+        type: "(open: boolean) => void",
+        description: "Called each time the cards show or hide.",
+      },
+      {
+        name: "play",
+        type: "boolean",
+        default: "true",
+        description:
+          "On WebSearchAnswer only. Starts typing the answer. Paragraphs, lists, and bold text are typed into; citations land whole. Children that grow later are typed in as they arrive.",
+      },
+      {
+        name: "speed",
+        type: "number",
+        default: "80",
+        description:
+          "On WebSearchAnswer only. Average characters per second. A long backlog types faster so a live stream never falls behind.",
+      },
+      {
+        name: "onComplete",
+        type: "() => void",
+        description: "On WebSearchAnswer only. Called once the last character is typed.",
+      },
+      {
+        name: "source",
+        type: "WebSource",
+        description:
+          "On WebSearchCitation only. The source the inline chip links to and previews.",
+      },
+      {
+        name: "index",
+        type: "number",
+        description:
+          "On WebSearchCitation only. A number shown after the site name, for numbered references.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description:
+          'Extra classes merged onto the root element (data-slot="web-search", with data-status). The width defaults to 560px.',
+      },
+    ],
+    usage: `"use client"
+
+import {
+  WebSearch,
+  WebSearchAnswer,
+  WebSearchCitation,
+} from "@/components/ui/web-search"
+
+const sources = [
+  {
+    id: "mdn",
+    title: "prefers-reduced-motion",
+    url: "https://developer.mozilla.org/docs/Web/CSS/@media/prefers-reduced-motion",
+    snippet: "Detects if the user asked for less motion.",
+  },
+]
+
+export function Answer() {
+  return (
+    <div>
+      <WebSearch sources={sources} />
+      <WebSearchAnswer>
+        Turn animations off when the user asks for less motion{" "}
+        <WebSearchCitation source={sources[0]} />.
+      </WebSearchAnswer>
+    </div>
+  )
+}
+
+// while results stream in, pass status="searching" and grow the array`,
+  },
 ];
 
 export type PackageManager = "npm" | "pnpm" | "yarn" | "bun";

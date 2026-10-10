@@ -359,6 +359,20 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "web-search",
+      "type": "registry:ui",
+      "title": "Web Search",
+      "description": "The sources behind an AI answer, shown as a search pill, source cards, a streaming answer, and inline citations.",
+      "dependencies": ["motion"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/web-search.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
