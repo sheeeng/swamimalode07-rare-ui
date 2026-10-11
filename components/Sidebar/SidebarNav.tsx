@@ -173,6 +173,7 @@ const SidebarGroup = ({
             <Link
               key={item.href}
               href={item.href}
+              prefetch={hoverIndex === index ? null : false}
               ref={(el) => {
                 itemRefs.current[index] = el;
               }}
