@@ -39,6 +39,7 @@ export default function ComponentCard({
   return (
     <Link
       href={item.href}
+      prefetch={active ? null : false}
       onMouseEnter={() => setActive(true)}
       onMouseLeave={() => setActive(false)}
       onFocus={() => setActive(true)}
