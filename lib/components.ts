@@ -1960,7 +1960,6 @@ export function Demo() {
     name: "Voice note",
     href: "/components/voicenote",
     category: "display",
-    isNew: true,
     registry: "voice-note",
     description:
       "A voice message bar with a scrubbable waveform and a play control.",
@@ -2200,6 +2199,7 @@ export function Demo() {
     description:
       "The sources behind an AI answer, shown as a search pill, source cards, a streaming answer, and inline citations.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/web-search.tsx`,
+    preview: "/componentdemos/websearch.mp4",
     dependencies: [
       {
         name: "motion",

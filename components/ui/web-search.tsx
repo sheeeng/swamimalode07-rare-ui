@@ -73,6 +73,15 @@ const cardVariants: Variants = {
 const SHIMMER =
   "linear-gradient(90deg, var(--web-search-ink) 40%, var(--web-search-shine) 50%, var(--web-search-ink) 60%)";
 
+const STROKE = {
+  fill: "none",
+  stroke: "currentColor",
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+} as const;
+
+const RING_CIRCLE = { ...STROKE, cx: 14, cy: 14, r: 13, strokeWidth: 1.5 };
+
 const hash = (text: string) => {
   let h = 2166136261;
   for (let i = 0; i < text.length; i++) {
@@ -127,19 +136,7 @@ function WebSearch({
   const reduced = !!useReducedMotion();
   const [openState, setOpenState] = useState(defaultOpen);
   const [expanded, setExpanded] = useState(false);
-  const measureRef = useRef<HTMLSpanElement>(null);
-  const [labelWidth, setLabelWidth] = useState<number | null>(null);
-
-  useEffect(() => {
-    const node = measureRef.current;
-    if (!node) return;
-    // offsetWidth rounds down, which is enough to tip the label into an ellipsis
-    const observer = new ResizeObserver(() =>
-      setLabelWidth(Math.ceil(node.getBoundingClientRect().width)),
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+  const [measureRef, labelWidth] = useSize<HTMLSpanElement>("width");
 
   const searching = status === "searching";
   const isOpen = open ?? openState;
@@ -178,6 +175,21 @@ function WebSearch({
           ...CARD,
           delay: Math.max(0, i - (expanded ? COLUMNS - 1 : 0)) * STAGGER,
         };
+
+  const cell = (key: string, i: number, child: ReactNode) => (
+    <motion.li
+      key={key}
+      className="group/card"
+      layout={!reduced}
+      variants={cardVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      transition={stagger(i)}
+    >
+      {child}
+    </motion.li>
+  );
 
   return (
     <div
@@ -249,20 +261,17 @@ function WebSearch({
               className="relative grid grid-cols-2 gap-2 pt-2.5 sm:grid-cols-4"
             >
               <AnimatePresence mode="popLayout">
-                {shown.map((source, i) => (
-                  <motion.li
-                    key={source.id}
-                    className="group/card"
-                    layout={!reduced}
-                    variants={cardVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={stagger(i)}
-                  >
-                    <SourceCard source={source} index={i + 1} linked={linked} />
-                  </motion.li>
-                ))}
+                {shown.map((source, i) =>
+                  cell(
+                    source.id,
+                    i,
+                    <SourceCard
+                      source={source}
+                      index={i + 1}
+                      linked={linked}
+                    />,
+                  ),
+                )}
                 {Array.from({ length: skeletons }, (_, i) => (
                   <motion.li
                     key={`skeleton-${count + i}`}
@@ -276,35 +285,21 @@ function WebSearch({
                     <SkeletonCard reduced={reduced} delay={i * 0.12} />
                   </motion.li>
                 ))}
-                {hidden.length > 0 && (
-                  <motion.li
-                    key="more"
-                    className="group/card"
-                    layout={!reduced}
-                    variants={cardVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={stagger(COLUMNS - 1)}
-                  >
+                {hidden.length > 0 &&
+                  cell(
+                    "more",
+                    COLUMNS - 1,
                     <MoreCard
                       sources={hidden}
                       onClick={() => setExpanded(true)}
                       reduced={reduced}
-                    />
-                  </motion.li>
-                )}
-                {expanded && count >= COLUMNS && (
-                  <motion.li
-                    key="less"
-                    className="group/card"
-                    layout={!reduced}
-                    variants={cardVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={stagger(count)}
-                  >
+                    />,
+                  )}
+                {expanded &&
+                  count >= COLUMNS &&
+                  cell(
+                    "less",
+                    count,
                     <button
                       type="button"
                       onClick={() => setExpanded(false)}
@@ -315,9 +310,8 @@ function WebSearch({
                     >
                       <Chevron className="-ml-0.5 rotate-180 transition-transform duration-200 group-hover:-translate-y-px" />
                       Show less
-                    </button>
-                  </motion.li>
-                )}
+                    </button>,
+                  )}
               </AnimatePresence>
             </ol>
           </Collapse>
@@ -334,11 +328,8 @@ function Chevron({ className }: { className?: string }) {
       viewBox="0 0 24 24"
       width={14}
       height={14}
-      fill="none"
-      stroke="currentColor"
+      {...STROKE}
       strokeWidth={2.6}
-      strokeLinecap="round"
-      strokeLinejoin="round"
       className={cn("block", className)}
     >
       <path d="M6 9l6 6 6-6" />
@@ -353,16 +344,7 @@ function Collapse({
   reduced: boolean;
   children: ReactNode;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number | null>(null);
-
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    const observer = new ResizeObserver(() => setHeight(node.offsetHeight));
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+  const [ref, height] = useSize<HTMLDivElement>("height");
 
   return (
     <motion.div
@@ -490,6 +472,24 @@ function SkeletonCard({ reduced, delay }: { reduced: boolean; delay: number }) {
   );
 }
 
+function useSize<T extends HTMLElement>(side: "width" | "height") {
+  const ref = useRef<T>(null);
+  const [size, setSize] = useState<number | null>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    // offsetWidth rounds down, which is enough to tip the label into an ellipsis
+    const observer = new ResizeObserver(() =>
+      setSize(Math.ceil(node.getBoundingClientRect()[side])),
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [side]);
+
+  return [ref, size] as const;
+}
+
 function useHoverIntent(enterDelay: number) {
   const [active, setActive] = useState(false);
   const timer = useRef(0);
@@ -560,14 +560,24 @@ function FaviconStack({
 function Favicon({ source, size }: { source: WebSource; size: number }) {
   const [broken, setBroken] = useState(false);
   const name = siteName(source.url);
+  const hue = hash(name) % 360;
+  const image = source.favicon && !broken;
 
-  if (source.favicon && !broken) {
-    return (
-      <span
-        className="flex shrink-0 overflow-hidden rounded-full"
-        style={{ width: size, height: size }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+  return (
+    <span
+      aria-hidden
+      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full font-bold uppercase leading-none text-white"
+      style={{
+        width: size,
+        height: size,
+        fontSize: size * 0.5,
+        background: image
+          ? undefined
+          : `linear-gradient(135deg, oklch(0.72 0.15 ${hue}), oklch(0.58 0.17 ${(hue + 30) % 360}))`,
+      }}
+    >
+      {image ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={source.favicon}
           alt=""
@@ -575,23 +585,9 @@ function Favicon({ source, size }: { source: WebSource; size: number }) {
           onError={() => setBroken(true)}
           className="size-full object-cover"
         />
-      </span>
-    );
-  }
-
-  const hue = hash(name) % 360;
-  return (
-    <span
-      aria-hidden
-      className="flex shrink-0 items-center justify-center rounded-full font-bold uppercase leading-none text-white"
-      style={{
-        width: size,
-        height: size,
-        fontSize: size * 0.5,
-        background: `linear-gradient(135deg, oklch(0.72 0.15 ${hue}), oklch(0.58 0.17 ${(hue + 30) % 360}))`,
-      }}
-    >
-      {name.charAt(0)}
+      ) : (
+        name.charAt(0)
+      )}
     </span>
   );
 }
@@ -637,10 +633,8 @@ function GlobeTile({
         viewBox="0 0 24 24"
         width={15}
         height={15}
-        fill="none"
-        stroke="currentColor"
+        {...STROKE}
         strokeWidth={2}
-        strokeLinecap="round"
       >
         <circle cx="12" cy="12" r="9" />
         <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" />
@@ -658,25 +652,8 @@ function GlobeTile({
             : { duration: 0.3, delay: searching ? 0 : RING_HOLD }
         }
       >
-        <circle
-          cx="14"
-          cy="14"
-          r="13"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          className="opacity-[0.12]"
-        />
-        <motion.circle
-          cx="14"
-          cy="14"
-          r="13"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          style={{ pathLength: fill }}
-        />
+        <circle {...RING_CIRCLE} className="opacity-[0.12]" />
+        <motion.circle {...RING_CIRCLE} style={{ pathLength: fill }} />
       </motion.svg>
     </span>
   );
