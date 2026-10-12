@@ -613,7 +613,7 @@ export function Demo() {
       },
     ],
     interaction:
-      "Scroll the content and the paper plane flies along the rail between headings, turning where the rail bends. Scroll back up and it turns around. The rail behind it is solid and each heading it passes fills in; the rest stays dashed. Keep scrolling past either end and the plane is thrown off the rail, drifts side to side, and lands at the bottom of the scroll area; scroll the other way and it flies back. Click any heading to scroll to it.",
+      "Scroll the content and the paper plane flies along the rail between headings, turning where the rail bends. Scroll back up and it turns around. The rail behind it is solid and each heading it passes fills in; the rest stays dashed. Click any heading to scroll to it.",
     props: [
       {
         name: "items",

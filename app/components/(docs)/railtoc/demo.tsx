@@ -36,7 +36,7 @@ export default function Demo() {
     <div className="flex h-full items-center justify-center px-6 py-16 [container-type:size]">
       <main
         ref={scrollRef}
-        className="h-[min(100cqh,calc(100cqw*9/16))] w-[min(100cqw,calc(100cqh*16/9))] overflow-auto border border-foreground/20 [container-type:size] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden dark:border-foreground/10"
+        className="h-[min(100cqh,calc(100cqw*9/16))] w-[min(100cqw,calc(100cqh*16/9))] overflow-auto [container-type:size] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         <div className="grid">
           <div className="sticky top-0 z-10 flex h-[100cqh] items-center justify-center self-start [grid-area:1/1]">
