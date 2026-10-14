@@ -14,17 +14,36 @@ import { cn } from '@/lib/utils'
 
 export type AiStatusState = 'thinking' | 'researching' | 'analyzing' | 'writing' | 'done' | 'error'
 
-const LABELS: Record<AiStatusState, string> = {
-    thinking: 'Thinking',
-    researching: 'Researching',
-    analyzing: 'Analyzing',
-    writing: 'Writing',
-    done: 'Done',
-    error: 'Failed',
+export type AiStatusStateConfig = {
+    label?: string | ((elapsed: string | undefined) => string)
+    icon?: React.ReactNode
+    active?: boolean
+}
+
+const DEFAULT_STATES: Record<AiStatusState, AiStatusStateConfig> = {
+    thinking: { label: 'Thinking', active: true },
+    researching: { label: 'Researching', active: true },
+    analyzing: { label: 'Analyzing', active: true },
+    writing: { label: 'Writing', active: true },
+    done: { label: (elapsed) => (elapsed ? `Worked for ${elapsed}` : 'Done'), active: false },
+    error: { label: (elapsed) => (elapsed ? `Failed after ${elapsed}` : 'Failed'), active: false },
 }
 
 const PEN_PATH = 'M3.78181 16.3092L3 21L7.69086 20.2182C8.50544 20.0825 9.25725 19.6956 9.84119 19.1116L20.4198 8.53288C21.1934 7.75922 21.1934 6.5049 20.4197 5.73126L18.2687 3.58024C17.495 2.80658 16.2406 2.80659 15.4669 3.58027L4.88841 14.159C4.30447 14.7429 3.91757 15.4947 3.78181 16.3092Z'
 const SPARKLE_PATH = 'M11 5Q12 12 19 13Q12 14 11 21Q10 14 3 13Q10 12 11 5Z'
+const WAVE_PATH = 'M3 19C4 17.5 5 17.5 6 19S8 20.5 9 19S11 17.5 12 19S14 20.5 15 19'
+// points along the wave at eased arc length, so the pen tip stays on the ink as it draws
+const WAVE_X = [3, 3.07, 3.26, 3.61, 4.18, 4.97, 5.69, 6.3, 7.16, 8.23, 9, 9.78, 10.85, 11.71, 12.32, 13.03, 13.82, 14.4, 14.74, 14.94, 15]
+const WAVE_Y = [19, 18.9, 18.64, 18.27, 17.92, 17.99, 18.58, 19.41, 20.07, 19.86, 19, 18.13, 17.94, 18.6, 19.43, 20.02, 20.07, 19.72, 19.35, 19.09, 19]
+const WAVE_PROGRESS = [0, 0.007, 0.028, 0.061, 0.104, 0.156, 0.216, 0.282, 0.352, 0.425, 0.5, 0.575, 0.648, 0.718, 0.784, 0.844, 0.896, 0.939, 0.972, 0.993, 1]
+const DRAW_END = 0.7
+const HOLD_END = 0.85
+const SCRIBBLE: Transition = {
+    duration: 2.4,
+    ease: 'linear',
+    repeat: Infinity,
+    times: [...WAVE_PROGRESS.map((_, i) => (i / (WAVE_PROGRESS.length - 1)) * DRAW_END), HOLD_END, 1],
+}
 const TWINKLE_PATH = 'M18 2Q18.4 4.6 21 5Q18.4 5.4 18 8Q17.6 5.4 15 5Q17.6 4.6 18 2Z'
 
 const SWAP: Transition = { type: 'spring', duration: 0.5, bounce: 0.15 }
@@ -55,62 +74,82 @@ const STROKE = {
 
 const LOOP = { repeat: Infinity, ease: 'easeInOut' } as const
 
-const isActive = (state: AiStatusState) => state !== 'done' && state !== 'error'
+const isBuiltIn = (state: string): state is AiStatusState => Object.hasOwn(DEFAULT_STATES, state)
+
+const titleCase = (state: string) => state.charAt(0).toUpperCase() + state.slice(1)
 
 const formatElapsed = (seconds: number) =>
     seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, '0')}s`
 
 export type AiStatusProps = Omit<React.ComponentProps<'div'>, 'children'> & {
-    state?: AiStatusState
+    state?: AiStatusState | (string & {})
+    states?: Record<string, AiStatusStateConfig>
     label?: string
+    icon?: React.ReactNode
     detail?: string
-    favicon?: string
+    favicon?: string | React.ReactNode
     timer?: boolean
+    elapsed?: number
+    shimmer?: boolean
 }
 
-function AiStatus({ state = 'thinking', label, detail, favicon, timer = true, className, ...props }: AiStatusProps) {
+function AiStatus({
+    state = 'thinking',
+    states,
+    label,
+    icon,
+    detail,
+    favicon,
+    timer = true,
+    elapsed,
+    shimmer,
+    className,
+    ...props
+}: AiStatusProps) {
     const reduced = !!useReducedMotion()
-    const active = isActive(state)
-    const [elapsed, setElapsed] = useState(0)
+    const config: AiStatusStateConfig = { ...(isBuiltIn(state) ? DEFAULT_STATES[state] : undefined), ...states?.[state] }
+    const active = config.active ?? true
+    const [counted, setCounted] = useState(0)
     const [wasActive, setWasActive] = useState(active)
+    // a status that mounts already finished, like a message from history, has no run to report a time for
+    const [hasRun, setHasRun] = useState(active)
+    const counting = timer && elapsed === undefined
 
     // a new run starts from zero; switching between working states keeps counting
     if (active !== wasActive) {
         setWasActive(active)
         if (active) {
-            setElapsed(0)
+            setCounted(0)
+            setHasRun(true)
         }
     }
 
     useEffect(() => {
-        if (!active || !timer) {
+        if (!active || !counting) {
             return
         }
         const start = Date.now()
-        const id = window.setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000)
+        const id = window.setInterval(() => setCounted(Math.floor((Date.now() - start) / 1000)), 1000)
         return () => window.clearInterval(id)
-    }, [active, timer])
+    }, [active, counting])
 
     const [measureRef, bounds] = useMeasure()
     const swap = reduced ? INSTANT : SWAP
-
-    const text =
-        label ??
-        (timer && state === 'done'
-            ? `Worked for ${formatElapsed(elapsed)}`
-            : timer && state === 'error'
-              ? `Failed after ${formatElapsed(elapsed)}`
-              : LABELS[state])
+    const seconds = elapsed ?? (hasRun ? counted : undefined)
+    const time = timer && seconds !== undefined ? formatElapsed(Math.max(0, Math.floor(seconds))) : undefined
+    const text = label ?? (typeof config.label === 'function' ? config.label(time) : (config.label ?? titleCase(state)))
+    const shimmering = shimmer ?? active
 
     return (
         <div
             data-slot="ai-status"
             data-state={state}
+            data-active={active || undefined}
             role="status"
             className={cn('flex h-8 w-fit items-center gap-2 font-runde text-[14px] text-black dark:text-white', className)}
             {...props}
         >
-            <span className="relative flex size-5 shrink-0 items-center justify-center">
+            <span data-slot="ai-status-icon" className="relative flex size-5 shrink-0 items-center justify-center">
                 <AnimatePresence initial={false} mode="popLayout">
                     <motion.span
                         key={state}
@@ -122,7 +161,7 @@ function AiStatus({ state = 'thinking', label, detail, favicon, timer = true, cl
                         transition={reduced ? INSTANT : ICON}
                         className="flex items-center justify-center"
                     >
-                        <StateIcon state={state} reduced={reduced} />
+                        {icon ?? config.icon ?? <AiStatusIcon state={state} />}
                     </motion.span>
                 </AnimatePresence>
             </span>
@@ -144,16 +183,18 @@ function AiStatus({ state = 'thinking', label, detail, favicon, timer = true, cl
                                 animate="center"
                                 exit="exit"
                                 transition={swap}
-                                className={cn('font-semibold', !active && 'text-[#868593]')}
+                                data-slot="ai-status-label"
+                                className={cn('font-semibold', !shimmering && 'text-[#868593]')}
                             >
-                                {active ? <Shimmer reduced={reduced}>{text}</Shimmer> : text}
+                                {shimmering ? <Shimmer reduced={reduced}>{text}</Shimmer> : text}
                             </motion.span>
                         </AnimatePresence>
                     </span>
                     <AnimatePresence initial={false} mode="popLayout">
                         {detail && (
                             <motion.span
-                                key={`${favicon}-${detail}`}
+                                key={detail}
+                                data-slot="ai-status-detail"
                                 variants={swapVariants}
                                 initial="enter"
                                 animate="center"
@@ -161,22 +202,27 @@ function AiStatus({ state = 'thinking', label, detail, favicon, timer = true, cl
                                 transition={swap}
                                 className="flex min-w-0 items-center gap-1.5 font-medium text-[#868593]/70"
                             >
-                                {favicon && (
+                                {typeof favicon === 'string' ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
                                         src={favicon}
                                         alt=""
                                         draggable={false}
+                                        onError={(event) => {
+                                            event.currentTarget.style.display = 'none'
+                                        }}
                                         className="size-3.5 shrink-0 rounded-[3px] object-contain"
                                     />
+                                ) : (
+                                    favicon && <span className="flex size-3.5 shrink-0 items-center justify-center">{favicon}</span>
                                 )}
                                 <span className="max-w-56 truncate">{detail}</span>
                             </motion.span>
                         )}
                     </AnimatePresence>
-                    {timer && active && (
+                    {time && active && (
                         <span data-slot="ai-status-timer" aria-hidden className="font-medium tabular-nums text-[#868593]/70">
-                            {formatElapsed(elapsed)}
+                            {time}
                         </span>
                     )}
                 </div>
@@ -185,7 +231,12 @@ function AiStatus({ state = 'thinking', label, detail, favicon, timer = true, cl
     )
 }
 
-function StateIcon({ state, reduced }: { state: AiStatusState; reduced: boolean }) {
+export type AiStatusIconProps = {
+    state: AiStatusState | (string & {})
+}
+
+function AiStatusIcon({ state }: AiStatusIconProps) {
+    const reduced = !!useReducedMotion()
     const loop = (transition: Transition) => (reduced ? INSTANT : transition)
 
     switch (state) {
@@ -239,22 +290,30 @@ function StateIcon({ state, reduced }: { state: AiStatusState; reduced: boolean 
         case 'writing':
             return (
                 <svg viewBox="0 0 24 24" width={18} height={18} className="text-[#868593]">
-                    <motion.path
-                        {...STROKE}
-                        d="M3 21H11"
-                        strokeWidth={2}
-                        animate={reduced ? undefined : { pathLength: [0, 1, 1], opacity: [1, 1, 0] }}
-                        transition={loop({ duration: 1.4, repeat: Infinity, ease: 'easeOut' })}
-                    />
-                    <motion.g
-                        animate={reduced ? undefined : { x: [-2, 1, -2], y: [0, -1, 0], rotate: [-4, 4, -4] }}
-                        transition={loop({ duration: 1.4, ...LOOP })}
-                    >
-                        <g transform="translate(6 -1) scale(0.75)">
-                            <path d={PEN_PATH} fill="currentColor" />
-                            <path d="M14 6L18 10" fill="none" strokeWidth={1.5} strokeLinecap="round" className="stroke-[#F4F4F9] dark:stroke-[#262626]" />
-                        </g>
-                    </motion.g>
+                    <g transform="translate(-0.75 -3.5)">
+                        <motion.path
+                            {...STROKE}
+                            d={WAVE_PATH}
+                            strokeWidth={1.75}
+                            // spacing past the path's end stops the dash pattern repeating as a dot at the far end
+                            style={{ pathSpacing: 2 }}
+                            initial={false}
+                            animate={reduced ? { pathLength: 1 } : { pathLength: [...WAVE_PROGRESS, 1, 1], opacity: [...WAVE_PROGRESS.map(() => 1), 1, 0] }}
+                            transition={loop(SCRIBBLE)}
+                        />
+                        <motion.g
+                            initial={false}
+                            animate={
+                                reduced
+                                    ? { x: WAVE_X.at(-1), y: WAVE_Y.at(-1) }
+                                    : { x: [...WAVE_X, WAVE_X.at(-1)!, WAVE_X[0]], y: [...WAVE_Y, WAVE_Y.at(-1)!, WAVE_Y[0]] }
+                            }
+                            transition={loop(SCRIBBLE)}
+                        >
+                            {/* puts the pen tip, not its corner, on the point being drawn */}
+                            <path d={PEN_PATH} fill="currentColor" transform="scale(0.45) translate(-3 -21)" />
+                        </motion.g>
+                    </g>
                 </svg>
             )
         case 'done':
@@ -282,6 +341,14 @@ function StateIcon({ state, reduced }: { state: AiStatusState; reduced: boolean 
                     />
                 </svg>
             )
+        default:
+            return (
+                <motion.span
+                    className="size-2.5 rounded-full bg-[#868593]"
+                    animate={reduced ? undefined : { scale: [1, 0.7, 1], opacity: [1, 0.5, 1] }}
+                    transition={loop({ duration: 1.2, ...LOOP })}
+                />
+            )
     }
 }
 
@@ -302,5 +369,5 @@ function Shimmer({ reduced, children }: { reduced: boolean; children: React.Reac
     )
 }
 
-export { AiStatus }
+export { AiStatus, AiStatusIcon }
 export default AiStatus

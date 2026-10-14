@@ -2335,7 +2335,7 @@ export function Answer() {
 // while results stream in, pass status="searching" and grow the array`,
   },
   {
-    name: "AI Status",
+    name: "Inline AI Status",
     href: "/components/aistatus",
     category: "ai",
     isNew: true,
@@ -2355,49 +2355,86 @@ export function Answer() {
     props: [
       {
         name: "state",
-        type: '"thinking" | "researching" | "analyzing" | "writing" | "done" | "error"',
+        type: '"thinking" | "researching" | "analyzing" | "writing" | "done" | "error" | string',
         default: '"thinking"',
-        options: ["thinking", "researching", "analyzing", "writing", "done", "error"],
+        description: "A built-in state or any key from states.",
+      },
+      {
+        name: "states",
+        type: "Record<string, { label?: string | ((elapsed?: string) => string); icon?: ReactNode; active?: boolean }>",
         description:
-          "What the AI is doing. Done and error stop the timer and the shimmer.",
+          "Adds custom states or overrides built-in ones, each with a label, icon, and active flag.",
       },
       {
         name: "label",
         type: "string",
-        description:
-          'Replaces the text for the current state. By default it reads "Thinking", then "Worked for 9s".',
+        description: "Replaces the text for the current state.",
+      },
+      {
+        name: "icon",
+        type: "ReactNode",
+        description: "Replaces the icon for the current state.",
       },
       {
         name: "detail",
         type: "string",
-        description: 'Muted text after the label, such as "12 sources".',
+        description: 'Muted text after the label, like "12 sources".',
       },
       {
         name: "favicon",
-        type: "string",
+        type: "string | ReactNode",
         description:
-          "Image url for a small round logo before the detail, such as the site being read.",
+          "A small logo before the detail, as an image url or element.",
       },
       {
         name: "timer",
         type: "boolean",
         default: "true",
-        description:
-          "Counts the seconds of a run. It keeps counting across working states and resets when a new run starts.",
+        description: "Shows how many seconds the run has taken.",
+      },
+      {
+        name: "elapsed",
+        type: "number",
+        description: "Seconds to show instead of the built-in count.",
+      },
+      {
+        name: "shimmer",
+        type: "boolean",
+        description: "Forces the label shimmer on or off.",
       },
       {
         name: "className",
         type: "string",
         description:
-          'Extra classes merged onto the root element (data-slot="ai-status", with data-state).',
+          'Extra classes merged onto the root element (data-slot="ai-status").',
       },
     ],
     usage: `"use client"
 
-import { AiStatus } from "@/components/ui/ai-status"
+import { AiStatus, AiStatusIcon } from "@/components/ui/ai-status"
 
-export function Status({ loading }: { loading: boolean }) {
-  return <AiStatus state={loading ? "researching" : "done"} detail="12 sources" />
+export function Status({ step }: { step: string }) {
+  return (
+    <AiStatus
+      state={step}
+      detail="12 sources"
+      states={{
+        // a custom state that reuses a built-in icon
+        browsing: { label: "Browsing", icon: <AiStatusIcon state="researching" /> },
+        // a custom state with your own svg
+        coding: {
+          label: "Writing code",
+          icon: (
+            <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth={2}>
+              <path d="M8 6l-6 6 6 6M16 6l6 6-6 6" />
+            </svg>
+          ),
+        },
+        // override a built-in label
+        done: { label: (time) => \`Answered in \${time}\`, active: false },
+      }}
+    />
+  )
 }`,
   },
 ];
