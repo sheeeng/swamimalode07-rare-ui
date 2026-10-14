@@ -2334,6 +2334,72 @@ export function Answer() {
 
 // while results stream in, pass status="searching" and grow the array`,
   },
+  {
+    name: "AI Status",
+    href: "/components/aistatus",
+    category: "ai",
+    isNew: true,
+    registry: "ai-status",
+    description:
+      "An inline status that shows what an AI is doing, from thinking and researching to writing and done.",
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/ai-status.tsx`,
+    dependencies: [
+      {
+        name: "motion",
+        icon: createElement(MotionIcon, { className: "h-4 w-4" }),
+      },
+      { name: "react-use-measure" },
+    ],
+    interaction:
+      "Press Replay to watch a reply go from thinking to done. Each state brings its own animated icon and a shimmering label, and the answer appears once it finishes.",
+    props: [
+      {
+        name: "state",
+        type: '"thinking" | "researching" | "analyzing" | "writing" | "done" | "error"',
+        default: '"thinking"',
+        options: ["thinking", "researching", "analyzing", "writing", "done", "error"],
+        description:
+          "What the AI is doing. Done and error stop the timer and the shimmer.",
+      },
+      {
+        name: "label",
+        type: "string",
+        description:
+          'Replaces the text for the current state. By default it reads "Thinking", then "Worked for 9s".',
+      },
+      {
+        name: "detail",
+        type: "string",
+        description: 'Muted text after the label, such as "12 sources".',
+      },
+      {
+        name: "favicon",
+        type: "string",
+        description:
+          "Image url for a small round logo before the detail, such as the site being read.",
+      },
+      {
+        name: "timer",
+        type: "boolean",
+        default: "true",
+        description:
+          "Counts the seconds of a run. It keeps counting across working states and resets when a new run starts.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description:
+          'Extra classes merged onto the root element (data-slot="ai-status", with data-state).',
+      },
+    ],
+    usage: `"use client"
+
+import { AiStatus } from "@/components/ui/ai-status"
+
+export function Status({ loading }: { loading: boolean }) {
+  return <AiStatus state={loading ? "researching" : "done"} detail="12 sources" />
+}`,
+  },
 ];
 
 export type PackageManager = "npm" | "pnpm" | "yarn" | "bun";
