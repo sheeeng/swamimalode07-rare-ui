@@ -599,7 +599,6 @@ export function Demo() {
     name: "Rail TOC",
     href: "/components/railtoc",
     category: "navigation",
-    isNew: true,
     registry: "rail-toc",
     description:
       "A table of contents with a paper plane that flies to the section you're reading.",
@@ -2333,6 +2332,110 @@ export function Answer() {
 }
 
 // while results stream in, pass status="searching" and grow the array`,
+  },
+  {
+    name: "Inline AI Status",
+    href: "/components/aistatus",
+    category: "ai",
+    isNew: true,
+    registry: "ai-status",
+    description:
+      "An inline status that shows what an AI is doing, from thinking and researching to writing and done.",
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/ai-status.tsx`,
+    preview: "/componentdemos/aistatus.mp4",
+    dependencies: [
+      {
+        name: "motion",
+        icon: createElement(MotionIcon, { className: "h-4 w-4" }),
+      },
+      { name: "react-use-measure" },
+    ],
+    interaction:
+      "Press Replay to watch a reply go from thinking to done. Each state brings its own animated icon and a shimmering label, and the answer appears once it finishes.",
+    props: [
+      {
+        name: "state",
+        type: '"thinking" | "researching" | "analyzing" | "writing" | "done" | "error" | string',
+        default: '"thinking"',
+        description: "A built-in state or any key from states.",
+      },
+      {
+        name: "states",
+        type: "Record<string, { label?: string | ((elapsed?: string) => string); icon?: ReactNode; active?: boolean }>",
+        description:
+          "Adds custom states or overrides built-in ones, each with a label, icon, and active flag.",
+      },
+      {
+        name: "label",
+        type: "string",
+        description: "Replaces the text for the current state.",
+      },
+      {
+        name: "icon",
+        type: "ReactNode",
+        description: "Replaces the icon for the current state.",
+      },
+      {
+        name: "detail",
+        type: "string",
+        description: 'Muted text after the label, like "12 sources".',
+      },
+      {
+        name: "favicon",
+        type: "string | ReactNode",
+        description:
+          "A small logo before the detail, as an image url or element.",
+      },
+      {
+        name: "timer",
+        type: "boolean",
+        default: "true",
+        description: "Shows how many seconds the run has taken.",
+      },
+      {
+        name: "elapsed",
+        type: "number",
+        description: "Seconds to show instead of the built-in count.",
+      },
+      {
+        name: "shimmer",
+        type: "boolean",
+        description: "Forces the label shimmer on or off.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description:
+          'Extra classes merged onto the root element (data-slot="ai-status").',
+      },
+    ],
+    usage: `"use client"
+
+import { AiStatus, AiStatusIcon } from "@/components/ui/ai-status"
+
+export function Status({ step }: { step: string }) {
+  return (
+    <AiStatus
+      state={step}
+      detail="12 sources"
+      states={{
+        // a custom state that reuses a built-in icon
+        browsing: { label: "Browsing", icon: <AiStatusIcon state="researching" /> },
+        // a custom state with your own svg
+        coding: {
+          label: "Writing code",
+          icon: (
+            <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="currentColor" strokeWidth={2}>
+              <path d="M8 6l-6 6 6 6M16 6l6 6-6 6" />
+            </svg>
+          ),
+        },
+        // override a built-in label
+        done: { label: (time) => \`Answered in \${time}\`, active: false },
+      }}
+    />
+  )
+}`,
   },
 ];
 

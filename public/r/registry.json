@@ -373,6 +373,20 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "ai-status",
+      "type": "registry:ui",
+      "title": "Inline AI Status",
+      "description": "An inline status that shows what an AI is doing, from thinking and researching to writing and done.",
+      "dependencies": ["motion", "react-use-measure"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/ai-status.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
