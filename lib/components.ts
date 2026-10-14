@@ -599,7 +599,6 @@ export function Demo() {
     name: "Rail TOC",
     href: "/components/railtoc",
     category: "navigation",
-    isNew: true,
     registry: "rail-toc",
     description:
       "A table of contents with a paper plane that flies to the section you're reading.",
@@ -2343,6 +2342,7 @@ export function Answer() {
     description:
       "An inline status that shows what an AI is doing, from thinking and researching to writing and done.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/ai-status.tsx`,
+    preview: "/componentdemos/aistatus.mp4",
     dependencies: [
       {
         name: "motion",
