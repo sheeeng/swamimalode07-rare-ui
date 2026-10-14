@@ -2431,7 +2431,7 @@ export function Status({ step }: { step: string }) {
           ),
         },
         // override a built-in label
-        done: { label: (time) => \`Answered in \${time}\`, active: false },
+        done: { label: (time) => (time ? \`Answered in \${time}\` : "Answered"), active: false },
       }}
     />
   )

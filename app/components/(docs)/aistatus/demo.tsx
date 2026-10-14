@@ -65,7 +65,7 @@ export default function AiStatusPage() {
         </p>
 
         <div className="flex min-h-24 flex-col gap-2">
-          <AiStatus state={state} detail={detail} favicon={favicon} />
+          <AiStatus key={run} state={state} detail={detail} favicon={favicon} />
           <AnimatePresence>
             {state === "done" && (
               <motion.p
