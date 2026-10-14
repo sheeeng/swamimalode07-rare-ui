@@ -66,12 +66,15 @@ export default function AiStatusPage() {
                 transition={{ type: "spring", duration: 0.6, bounce: 0 }}
                 className="text-[14px] leading-relaxed text-black dark:text-white"
               >
-                Run{" "}
-                <code className="whitespace-nowrap rounded-md bg-[#F4F4F9] px-1.5 py-0.5 font-mono text-[13px] dark:bg-[#262626]">
-                  npx shadcn add
-                </code>{" "}
-                with the component&apos;s name. The source lands in your
-                components folder, so it&apos;s yours to tweak.
+                Run the shadcn CLI with the component&apos;s name, like{" "}
+                <span className="whitespace-nowrap">
+                  <code className="rounded-md bg-[#F4F4F9] px-1.5 py-0.5 font-mono text-[13px] dark:bg-[#262626]">
+                    npx shadcn@latest add swamimalode07/rare-ui/ai-status
+                  </code>
+                  .
+                </span>{" "}
+                The source lands in your components folder, so it&apos;s yours
+                to tweak.
               </motion.p>
             )}
           </AnimatePresence>
