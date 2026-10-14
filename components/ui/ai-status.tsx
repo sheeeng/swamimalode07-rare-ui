@@ -31,10 +31,10 @@ const DEFAULT_STATES: Record<AiStatusState, AiStatusStateConfig> = {
 
 const PEN_PATH = 'M3.78181 16.3092L3 21L7.69086 20.2182C8.50544 20.0825 9.25725 19.6956 9.84119 19.1116L20.4198 8.53288C21.1934 7.75922 21.1934 6.5049 20.4197 5.73126L18.2687 3.58024C17.495 2.80658 16.2406 2.80659 15.4669 3.58027L4.88841 14.159C4.30447 14.7429 3.91757 15.4947 3.78181 16.3092Z'
 const SPARKLE_PATH = 'M11 5Q12 12 19 13Q12 14 11 21Q10 14 3 13Q10 12 11 5Z'
-const WAVE_PATH = 'M3 19C4 17.5 5 17.5 6 19S8 20.5 9 19S11 17.5 12 19S14 20.5 15 19'
+const WAVE_PATH = 'M3 19C4.11 16.3 5.06 16.3 6.17 19C7.27 21.7 8.22 21.7 9.33 19C10.44 16.3 11.39 16.3 12.5 19'
 // points along the wave at eased arc length, so the pen tip stays on the ink as it draws
-const WAVE_X = [3, 3.07, 3.26, 3.61, 4.18, 4.97, 5.69, 6.3, 7.16, 8.23, 9, 9.78, 10.85, 11.71, 12.32, 13.03, 13.82, 14.4, 14.74, 14.94, 15]
-const WAVE_Y = [19, 18.9, 18.64, 18.27, 17.92, 17.99, 18.58, 19.41, 20.07, 19.86, 19, 18.13, 17.94, 18.6, 19.43, 20.02, 20.07, 19.72, 19.35, 19.09, 19]
+const WAVE_X = [3, 3.05, 3.18, 3.42, 3.78, 4.42, 5.26, 5.83, 6.29, 6.84, 7.76, 8.67, 9.22, 9.68, 10.25, 11.09, 11.72, 12.09, 12.33, 12.46, 12.5]
+const WAVE_Y = [19, 18.88, 18.58, 18.1, 17.51, 17, 17.36, 18.25, 19.29, 20.33, 21.02, 20.32, 19.27, 18.24, 17.35, 17, 17.52, 18.11, 18.6, 18.9, 19]
 const WAVE_PROGRESS = [0, 0.007, 0.028, 0.061, 0.104, 0.156, 0.216, 0.282, 0.352, 0.425, 0.5, 0.575, 0.648, 0.718, 0.784, 0.844, 0.896, 0.939, 0.972, 0.993, 1]
 const DRAW_END = 0.7
 const HOLD_END = 0.85
@@ -290,11 +290,11 @@ function AiStatusIcon({ state }: AiStatusIconProps) {
         case 'writing':
             return (
                 <svg viewBox="0 0 24 24" width={18} height={18} className="text-[#868593]">
-                    <g transform="translate(-0.75 -3.5)">
+                    <g transform="translate(-1.2 -2)">
                         <motion.path
                             {...STROKE}
                             d={WAVE_PATH}
-                            strokeWidth={1.75}
+                            strokeWidth={2.25}
                             // spacing past the path's end stops the dash pattern repeating as a dot at the far end
                             style={{ pathSpacing: 2 }}
                             initial={false}
@@ -311,7 +311,7 @@ function AiStatusIcon({ state }: AiStatusIconProps) {
                             transition={loop(SCRIBBLE)}
                         >
                             {/* puts the pen tip, not its corner, on the point being drawn */}
-                            <path d={PEN_PATH} fill="currentColor" transform="scale(0.45) translate(-3 -21)" />
+                            <path d={PEN_PATH} fill="currentColor" transform="scale(0.66) translate(-3 -21)" />
                         </motion.g>
                     </g>
                 </svg>

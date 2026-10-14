@@ -1,12 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { GripVertical, RotateCcw } from "lucide-react";
 import { Squircle } from "@squircle-js/react";
 import { AiStatus, type AiStatusState } from "@/components/ui/ai-status";
 
 const SQUIRCLE = { cornerRadius: 16, cornerSmoothing: 5 } as const;
+
+// on small screens the command breaks at a space or before a slash, never inside a word
+const COMMAND = [
+  "npx shadcn@latest",
+  "add",
+  "swamimalode07",
+  "/rare-ui",
+  "/ai-status",
+];
 
 const STEPS: {
   at: number;
@@ -67,9 +76,14 @@ export default function AiStatusPage() {
                 className="text-[14px] leading-relaxed text-black dark:text-white"
               >
                 Run the shadcn CLI with the component&apos;s name, like{" "}
-                <span className="whitespace-nowrap">
-                  <code className="rounded-md bg-[#F4F4F9] px-1.5 py-0.5 font-mono text-[13px] dark:bg-[#262626]">
-                    npx shadcn@latest add swamimalode07/rare-ui/ai-status
+                <span className="sm:whitespace-nowrap">
+                  <code className="box-decoration-clone rounded-md bg-[#F4F4F9] px-1.5 py-0.5 font-mono text-[13px] dark:bg-[#262626]">
+                    {COMMAND.map((part, i) => (
+                      <Fragment key={part}>
+                        {i > 0 && (part.startsWith("/") ? <wbr /> : " ")}
+                        <span className="whitespace-nowrap">{part}</span>
+                      </Fragment>
+                    ))}
                   </code>
                   .
                 </span>{" "}
