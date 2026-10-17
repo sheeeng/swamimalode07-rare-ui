@@ -176,6 +176,20 @@
       ]
     },
     {
+      "name": "password-input",
+      "type": "registry:ui",
+      "title": "Password Input",
+      "description": "A password field whose eye opens to decode the dots into characters, with a strength meter that slides in as you type.",
+      "dependencies": ["motion"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/password-input.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "gravity-letters",
       "type": "registry:ui",
       "title": "Gravity Letters",
