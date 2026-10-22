@@ -1020,7 +1020,7 @@ export function Demo() {
     isNew: true,
     registry: "password-input",
     description:
-      "A password field whose eye opens to decode the dots into characters, with a strength meter that slides in as you type.",
+      "A password field with an eye toggle to show or hide what you type, and a strength meter that shows the password level as you type.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/password-input.tsx`,
     dependencies: [
       {
@@ -1029,7 +1029,7 @@ export function Demo() {
       },
     ],
     interaction:
-      "Click the eye and it opens, while the dots scramble into your characters one by one; click again and they fold back into dots. Once you start typing, a strength bar slides in below and fills as the password gets stronger.",
+      "Click the eye to show your password; click again to hide it. Once you start typing, a strength bar slides in below and fills as the password gets stronger.",
     props: [
       {
         name: "value",
@@ -2431,7 +2431,6 @@ export function Answer() {
     name: "Inline AI Status",
     href: "/components/aistatus",
     category: "ai",
-    isNew: true,
     registry: "ai-status",
     description:
       "An inline status that shows what an AI is doing, from thinking and researching to writing and done.",
@@ -2564,7 +2563,14 @@ export const gallerySections: ComponentSection[] = [
   {
     id: "new",
     label: "New releases",
-    items: components.filter((c) => c.isNew).reverse(),
+    items: components
+      .filter((c) => c.isNew)
+      .reverse()
+      .sort(
+        (a, b) =>
+          Number(b.href === "/components/passwordinput") -
+          Number(a.href === "/components/passwordinput"),
+      ),
   },
   ...CATEGORY_ORDER.map((id) => ({
     id,

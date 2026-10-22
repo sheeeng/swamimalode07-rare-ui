@@ -179,7 +179,7 @@
       "name": "password-input",
       "type": "registry:ui",
       "title": "Password Input",
-      "description": "A password field whose eye opens to decode the dots into characters, with a strength meter that slides in as you type.",
+      "description": "A password field with an eye toggle to show or hide what you type, and a strength meter that shows the password level as you type.",
       "dependencies": ["motion"],
       "registryDependencies": ["utils"],
       "files": [

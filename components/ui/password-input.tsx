@@ -9,13 +9,6 @@ import {
 } from "motion/react";
 import { cn } from "@/lib/utils";
 
-const SCRAMBLE =
-  "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789#$%&*@";
-const SCRAMBLE_FRAMES = 3;
-const SCRAMBLE_FRAME_MS = 45;
-const STAGGER_TOTAL = 0.35;
-const STAGGER_STEP = 0.03;
-
 const LEVELS = [
   { label: "Weak", color: "#FF3B30" },
   { label: "Fair", color: "#FF9500" },
@@ -35,6 +28,7 @@ const LASHES = [
 const INSTANT: Transition = { duration: 0 };
 const SPRING: Transition = { type: "spring", stiffness: 520, damping: 32 };
 const LID_SPRING: Transition = { type: "spring", stiffness: 500, damping: 34 };
+const SWAP: Transition = { duration: 0.12, ease: "easeOut" };
 const EXPAND: Transition = { duration: 0.24, ease: [0.22, 1, 0.36, 1] };
 const BLINK: Transition = {
   duration: 1.1,
@@ -47,8 +41,6 @@ const corner = (y: number) => 12 + (y - 12) * 0.64;
 
 const eyePath = ({ top, bottom }: { top: number; bottom: number }) =>
   `M2 12C4 ${corner(top)} 7.5 ${top} 12 ${top}C16.5 ${top} 20 ${corner(top)} 22 12C20 ${corner(bottom)} 16.5 ${bottom} 12 ${bottom}C7.5 ${bottom} 4 ${corner(bottom)} 2 12Z`;
-
-const randomGlyph = () => SCRAMBLE[Math.floor(Math.random() * SCRAMBLE.length)];
 
 export function passwordStrength(value: string) {
   if (!value) return 0;
@@ -65,58 +57,31 @@ export function passwordStrength(value: string) {
 function Glyph({
   char,
   visible,
-  delay,
   reduceMotion,
 }: {
   char: string;
   visible: boolean;
-  delay: number;
   reduceMotion: boolean;
 }) {
-  const [scrambled, setScrambled] = useState<string | null>(null);
-  const lastVisible = useRef(visible);
-
-  useEffect(() => {
-    // only a toggle scrambles, never a typed character
-    if (lastVisible.current === visible) return;
-    lastVisible.current = visible;
-    if (!visible || reduceMotion) return;
-
-    const timers = Array.from({ length: SCRAMBLE_FRAMES + 1 }, (_, frame) =>
-      setTimeout(
-        () => setScrambled(frame < SCRAMBLE_FRAMES ? randomGlyph() : null),
-        delay * 1000 + frame * SCRAMBLE_FRAME_MS,
-      ),
-    );
-    return () => {
-      timers.forEach(clearTimeout);
-      setScrambled(null);
-    };
-  }, [visible, delay, reduceMotion]);
-
-  const transition = reduceMotion ? INSTANT : { ...SPRING, delay };
+  const transition = reduceMotion ? INSTANT : SWAP;
 
   return (
     <span className="relative grid h-full w-[1ch] shrink-0 place-items-center">
       <motion.span
         data-slot="password-input-dot"
         initial={false}
-        animate={{ scale: visible ? 0 : 1, opacity: visible ? 0 : 1 }}
+        animate={{ opacity: visible ? 0 : 1 }}
         transition={transition}
         className="absolute size-[0.36em] rounded-full bg-current"
       />
       <motion.span
         data-slot="password-input-char"
         initial={false}
-        animate={{
-          opacity: visible ? 1 : 0,
-          y: visible ? "0em" : "0.35em",
-          filter: visible ? "blur(0px)" : "blur(3px)",
-        }}
+        animate={{ opacity: visible ? 1 : 0 }}
         transition={transition}
         className="whitespace-pre"
       >
-        {scrambled ?? (char === " " ? " " : char)}
+        {char}
       </motion.span>
     </span>
   );
@@ -198,10 +163,6 @@ export function PasswordInput({
   const password = value ?? uncontrolled;
   const chars = Array.from(password);
   const level = passwordStrength(password);
-  const step = Math.min(
-    STAGGER_STEP,
-    STAGGER_TOTAL / Math.max(chars.length, 1),
-  );
   const animated = (transition: Transition) =>
     reduceMotion ? INSTANT : transition;
 
@@ -210,8 +171,9 @@ export function PasswordInput({
   const read = () => {
     const el = input.current;
     if (!el) return;
-    const start = el.selectionStart ?? 0;
-    const end = el.selectionEnd ?? 0;
+    // selection offsets count utf-16 units, the glyphs count code points
+    const start = Array.from(el.value.slice(0, el.selectionStart ?? 0)).length;
+    const end = Array.from(el.value.slice(0, el.selectionEnd ?? 0)).length;
     const scroll = el.scrollLeft;
     setSelection((current) =>
       current.start === start &&
@@ -288,7 +250,7 @@ export function PasswordInput({
               onBlur?.(event);
             }}
             className={cn(
-              "absolute inset-0 size-full bg-transparent pl-4 pr-2 font-mono text-base text-transparent caret-transparent outline-none [-webkit-text-fill-color:transparent] selection:bg-transparent placeholder:text-transparent",
+              "absolute inset-0 size-full bg-transparent pl-4 pr-2 font-mono text-base text-transparent caret-transparent outline-none [-webkit-text-fill-color:transparent] selection:bg-transparent placeholder:text-transparent autofill:shadow-[inset_0_0_0_100px_#F4F4F9] dark:autofill:shadow-[inset_0_0_0_100px_#262626] [&::-ms-reveal]:hidden",
               inputClassName,
             )}
           />
@@ -323,7 +285,6 @@ export function PasswordInput({
                   key={index}
                   char={char}
                   visible={visible}
-                  delay={(visible ? index : chars.length - 1 - index) * step}
                   reduceMotion={reduceMotion}
                 />
               ))}
@@ -346,7 +307,7 @@ export function PasswordInput({
         <button
           type="button"
           data-slot="password-input-toggle"
-          aria-label={visible ? "Hide password" : "Show password"}
+          aria-label="Show password"
           aria-pressed={visible}
           disabled={disabled}
           onPointerDown={(event) => event.preventDefault()}
@@ -391,7 +352,10 @@ export function PasswordInput({
                 <span className="text-black/40 dark:text-white/40">
                   Password strength
                 </span>
-                <span className="relative flex h-4 justify-end overflow-hidden font-medium text-black/70 dark:text-white/70">
+                <span
+                  aria-live="polite"
+                  className="relative flex h-4 justify-end overflow-hidden font-medium text-black/70 dark:text-white/70"
+                >
                   <AnimatePresence initial={false} mode="popLayout">
                     <motion.span
                       key={level}
