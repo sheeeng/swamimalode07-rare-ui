@@ -16,7 +16,7 @@ export default function SidebarHeader({
       <Link
         href="/"
         onClick={onNavigate}
-        className="flex items-center gap-1.5 text-foreground/50"
+        className="flex items-center gap-1.5 text-foreground/50 transition-colors duration-200 hover:text-foreground"
       >
         <img src="/logos/Rareui.svg" alt="" className="size-3.5" />
         Rare UI
