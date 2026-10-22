@@ -1022,6 +1022,7 @@ export function Demo() {
     description:
       "A password field with an eye toggle to show or hide what you type, and a strength meter that shows the password level as you type.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/password-input.tsx`,
+    preview: "/componentdemos/passwordinput.mp4",
     dependencies: [
       {
         name: "motion",
