@@ -1014,6 +1014,101 @@ export function Demo() {
 }`,
   },
   {
+    name: "Password input",
+    href: "/components/passwordinput",
+    category: "inputs",
+    isNew: true,
+    registry: "password-input",
+    description:
+      "A password field with an eye toggle to show or hide what you type, and a strength meter that shows the password level as you type.",
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/password-input.tsx`,
+    preview: "/componentdemos/passwordinput.mp4",
+    dependencies: [
+      {
+        name: "motion",
+        icon: createElement(MotionIcon, { className: "h-4 w-4" }),
+      },
+    ],
+    interaction:
+      "Click the eye to show your password; click again to hide it. Once you start typing, a strength bar slides in below and fills as the password gets stronger.",
+    props: [
+      {
+        name: "value",
+        type: "string",
+        description:
+          "The current password. Pass it to control the input yourself; leave it out to let the component track its own state.",
+      },
+      {
+        name: "defaultValue",
+        type: "string",
+        default: '""',
+        description: "Starting password when the input is uncontrolled.",
+      },
+      {
+        name: "onChange",
+        type: "(value: string) => void",
+        description: "Fires on every edit with the full password.",
+      },
+      {
+        name: "defaultVisible",
+        type: "boolean",
+        default: "false",
+        description: "Starts with the password shown.",
+      },
+      {
+        name: "onVisibleChange",
+        type: "(visible: boolean) => void",
+        description: "Fires when the eye shows or hides the password.",
+      },
+      {
+        name: "strength",
+        type: "boolean",
+        default: "true",
+        description:
+          "Shows the four step strength bar under the field once there is something typed, labeled Weak, Fair, Good or Strong.",
+      },
+      {
+        name: "placeholder",
+        type: "string",
+        description: "Text shown while the field is empty.",
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        default: "false",
+        description: "Blocks input and dims the whole field.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description:
+          "Extra classes for the wrapper around the field and the bar.",
+      },
+      {
+        name: "inputClassName",
+        type: "string",
+        description:
+          "Extra classes for the native input. Any other input prop, like name or autoComplete, goes to it as well.",
+      },
+    ],
+    usage: `import { useState } from "react"
+import PasswordInput from "@/components/ui/password-input"
+
+export function Demo() {
+  const [password, setPassword] = useState("")
+
+  return (
+    <PasswordInput
+      name="password"
+      autoComplete="new-password"
+      placeholder="Enter a password"
+      value={password}
+      onChange={setPassword}
+    />
+  )
+}`,
+  },
+  {
     name: "GitHub activity",
     href: "/components/githubactivity",
     category: "display",
@@ -2337,7 +2432,6 @@ export function Answer() {
     name: "Inline AI Status",
     href: "/components/aistatus",
     category: "ai",
-    isNew: true,
     registry: "ai-status",
     description:
       "An inline status that shows what an AI is doing, from thinking and researching to writing and done.",
@@ -2470,7 +2564,14 @@ export const gallerySections: ComponentSection[] = [
   {
     id: "new",
     label: "New releases",
-    items: components.filter((c) => c.isNew).reverse(),
+    items: components
+      .filter((c) => c.isNew)
+      .reverse()
+      .sort(
+        (a, b) =>
+          Number(b.href === "/components/passwordinput") -
+          Number(a.href === "/components/passwordinput"),
+      ),
   },
   ...CATEGORY_ORDER.map((id) => ({
     id,

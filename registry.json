@@ -176,6 +176,20 @@
       ]
     },
     {
+      "name": "password-input",
+      "type": "registry:ui",
+      "title": "Password Input",
+      "description": "A password field with an eye toggle to show or hide what you type, and a strength meter that shows the password level as you type.",
+      "dependencies": ["motion"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/password-input.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "gravity-letters",
       "type": "registry:ui",
       "title": "Gravity Letters",

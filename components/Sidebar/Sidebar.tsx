@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import SidebarNav from "./SidebarNav";
+import SidebarHeader from "./SidebarHeader";
 import SidebarScroll from "./SidebarScroll";
 import { ClosedIcon, OpenIcon } from "./icons";
 import { Squircle } from "@squircle-js/react";
@@ -35,7 +36,7 @@ const Sidebar = ({
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="pointer-events-auto flex h-full w-90 flex-col bg-background p-4 pl-6"
         >
-          <h2 className="mt-18">Components</h2>
+          <SidebarHeader className="mt-18" />
           <SidebarScroll className="mt-4 min-h-0 flex-1">
             <SidebarNav />
           </SidebarScroll>
