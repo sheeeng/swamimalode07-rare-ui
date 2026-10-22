@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import SidebarNav from "./SidebarNav";
+import SidebarHeader from "./SidebarHeader";
 import SidebarScroll from "./SidebarScroll";
 import { ClosedIcon, OpenIcon } from "./icons";
 
@@ -48,7 +49,10 @@ export default function MobileSidebar() {
               transition={{ type: "spring", stiffness: 320, damping: 34 }}
               className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col rounded-r-3xl bg-card p-4 pl-6"
             >
-              <h2 className="mt-18">Components</h2>
+              <SidebarHeader
+                className="mt-18"
+                onNavigate={() => setOpen(false)}
+              />
               <SidebarScroll className="mt-4 min-h-0 flex-1">
                 <SidebarNav onNavigate={() => setOpen(false)} />
               </SidebarScroll>
