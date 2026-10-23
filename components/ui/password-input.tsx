@@ -29,7 +29,7 @@ const INSTANT: Transition = { duration: 0 };
 const SPRING: Transition = { type: "spring", stiffness: 520, damping: 32 };
 const LID_SPRING: Transition = { type: "spring", stiffness: 500, damping: 34 };
 const SWAP: Transition = { duration: 0.12, ease: "easeOut" };
-const EXPAND: Transition = { duration: 0.24, ease: [0.22, 1, 0.36, 1] };
+const REVEAL: Transition = { duration: 0.32, ease: [0.22, 1, 0.36, 1] };
 const BLINK: Transition = {
   duration: 1.1,
   times: [0, 0.5, 0.5, 1],
@@ -211,14 +211,14 @@ export function PasswordInput({
       data-slot="password-input"
       data-visible={visible}
       className={cn(
-        "flex w-full max-w-xs flex-col",
+        "relative flex w-full max-w-xs flex-col",
         disabled && "pointer-events-none opacity-50",
         className,
       )}
     >
       <div
         data-slot="password-input-field"
-        className="relative flex h-12 items-center rounded-xl bg-[#F4F4F9] text-black shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_8px_rgba(0,0,0,0.05)] ring-[#FC4C01]/50 transition-shadow duration-200 focus-within:ring-2 dark:bg-[#262626] dark:text-white dark:shadow-none"
+        className="relative flex h-12 items-center rounded-xl bg-[#F4F4F9] text-black shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_8px_rgba(0,0,0,0.05)] dark:bg-[#262626] dark:text-white dark:shadow-none"
       >
         <div className="relative h-full min-w-0 flex-1">
           <input
@@ -323,11 +323,12 @@ export function PasswordInput({
           <motion.div
             data-slot="password-input-strength"
             data-level={level}
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={animated(EXPAND)}
-            className="overflow-hidden"
+            initial={{ opacity: 0, y: -4, filter: "blur(2px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -4, filter: "blur(2px)" }}
+            transition={animated(REVEAL)}
+            // out of flow so the field stays put when the meter appears
+            className="absolute inset-x-0 top-full"
           >
             <div className="flex flex-col gap-2 px-1 pt-3">
               <div className="flex gap-1.5">
