@@ -190,6 +190,19 @@
       ]
     },
     {
+      "name": "theme-selector",
+      "type": "registry:ui",
+      "title": "Theme Selector",
+      "description": "A row of miniature app previews, one per theme, with a ring that marks the one you pick.",
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/theme-selector.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "gravity-letters",
       "type": "registry:ui",
       "title": "Gravity Letters",
