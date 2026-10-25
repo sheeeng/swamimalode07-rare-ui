@@ -1017,7 +1017,6 @@ export function Demo() {
     name: "Password input",
     href: "/components/passwordinput",
     category: "inputs",
-    isNew: true,
     registry: "password-input",
     description:
       "A password field with an eye toggle to show or hide what you type, and a strength meter that shows the password level as you type.",
@@ -1117,6 +1116,7 @@ export function Demo() {
     description:
       "A row of miniature app previews, one per theme, with a ring that marks the one you pick.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/theme-selector.tsx`,
+    preview: "/componentdemos/themetoggle.mp4",
     interaction:
       "Hover a preview and a faint ring shows around it; click it and a solid ring marks it as selected. Arrow keys move between themes and select as they go; Home and End jump to the first and last.",
     props: [
@@ -2663,8 +2663,8 @@ export const gallerySections: ComponentSection[] = [
       .reverse()
       .sort(
         (a, b) =>
-          Number(b.href === "/components/passwordinput") -
-          Number(a.href === "/components/passwordinput"),
+          Number(b.href === "/components/themeselector") -
+          Number(a.href === "/components/themeselector"),
       ),
   },
   ...CATEGORY_ORDER.map((id) => ({
