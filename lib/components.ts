@@ -1017,7 +1017,6 @@ export function Demo() {
     name: "Password input",
     href: "/components/passwordinput",
     category: "inputs",
-    isNew: true,
     registry: "password-input",
     description:
       "A password field with an eye toggle to show or hide what you type, and a strength meter that shows the password level as you type.",
@@ -1107,6 +1106,100 @@ export function Demo() {
     />
   )
 }`,
+  },
+  {
+    name: "Theme selector",
+    href: "/components/themeselector",
+    category: "inputs",
+    isNew: true,
+    registry: "theme-selector",
+    description:
+      "A row of miniature app previews, one per theme, with a ring that marks the one you pick.",
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/theme-selector.tsx`,
+    preview: "/componentdemos/themetoggle.mp4",
+    interaction:
+      "Hover a preview and a faint ring shows around it; click it and a solid ring marks it as selected. Arrow keys move between themes and select as they go; Home and End jump to the first and last.",
+    props: [
+      {
+        name: "themes",
+        type: "ThemeOption[]",
+        default: "DEFAULT_THEMES",
+        description:
+          "The themes to show, each with a value, a label and a palette of six colors for its preview. Defaults to dark and light.",
+      },
+      {
+        name: "value",
+        type: "string | null",
+        description:
+          "The selected theme. Pass it to control the selector yourself; leave it out to let the component track its own state. Pass null until your theme is known, like during server rendering, so nothing is selected yet.",
+      },
+      {
+        name: "defaultValue",
+        type: "string",
+        description:
+          "Starting theme when uncontrolled. Falls back to the first theme.",
+      },
+      {
+        name: "onChange",
+        type: "(value: string) => void",
+        description:
+          "Fires with the new value when a different theme is picked.",
+      },
+      {
+        name: "labels",
+        type: "boolean",
+        default: "true",
+        description:
+          "Shows each theme's label under its preview, brightened on the selected one.",
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        default: "false",
+        description: "Blocks selection and dims every preview.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description: "Extra classes for the row that wraps the previews.",
+      },
+      {
+        name: "itemClassName",
+        type: "string",
+        description:
+          "Extra classes for each preview, for sizing. Each one is w-40 at a 4:3 ratio by default, and everything inside scales with it.",
+      },
+    ],
+    usage: `"use client"
+
+import { useSyncExternalStore } from "react"
+import { useTheme } from "next-themes"
+import ThemeSelector from "@/components/ui/theme-selector"
+
+const subscribe = () => () => {}
+
+export function Demo() {
+  const { resolvedTheme, setTheme } = useTheme()
+  // the server can't know the theme, so select nothing until hydration is done
+  const hydrated = useSyncExternalStore(subscribe, () => true, () => false)
+
+  return (
+    <ThemeSelector
+      value={hydrated ? (resolvedTheme ?? null) : null}
+      onChange={setTheme}
+    />
+  )
+}
+
+// No theme library? Toggle the class yourself:
+// const [theme, setTheme] = useState<string | null>(null)
+// useEffect(() => setTheme(localStorage.theme ?? "dark"), [])
+// useEffect(() => {
+//   if (!theme) return
+//   document.documentElement.classList.toggle("dark", theme === "dark")
+//   localStorage.theme = theme
+// }, [theme])
+// <ThemeSelector value={theme} onChange={setTheme} />`,
   },
   {
     name: "GitHub activity",
@@ -2376,7 +2469,8 @@ export function Demo() {
       {
         name: "onComplete",
         type: "() => void",
-        description: "On WebSearchAnswer only. Called once the last character is typed.",
+        description:
+          "On WebSearchAnswer only. Called once the last character is typed.",
       },
       {
         name: "source",
@@ -2569,8 +2663,8 @@ export const gallerySections: ComponentSection[] = [
       .reverse()
       .sort(
         (a, b) =>
-          Number(b.href === "/components/passwordinput") -
-          Number(a.href === "/components/passwordinput"),
+          Number(b.href === "/components/themeselector") -
+          Number(a.href === "/components/themeselector"),
       ),
   },
   ...CATEGORY_ORDER.map((id) => ({

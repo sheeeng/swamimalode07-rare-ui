@@ -25,7 +25,7 @@ export default function MobileSidebar() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Close sidebar" : "Open sidebar"}
-        className="absolute left-4 top-4 z-60 cursor-pointer rounded-lg bg-popover p-2"
+        className="absolute left-4 top-4 z-60 cursor-pointer rounded-lg bg-[#F4F4F9] p-2 dark:bg-popover"
       >
         {open ? <OpenIcon /> : <ClosedIcon />}
       </button>
