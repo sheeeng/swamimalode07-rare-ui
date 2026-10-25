@@ -17,7 +17,7 @@ export default function ThemeSelectorPage() {
 
   return (
     <div className="relative flex h-full items-center justify-center px-6 font-runde">
-      <div className="flex flex-col gap-4 rounded-[22px] bg-white px-5 py-4 dark:bg-black">
+      <div className="flex min-w-0 flex-col gap-4 rounded-[22px] bg-white px-5 py-4 dark:bg-black">
         <div className="flex flex-col gap-0.5">
           <p className="text-base font-semibold tracking-[-0.01em] text-black dark:text-white">
             Theme

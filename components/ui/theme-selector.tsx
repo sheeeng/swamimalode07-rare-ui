@@ -123,7 +123,7 @@ const STEPS = new Map([
 ]);
 
 const ring =
-  "pointer-events-none absolute -inset-[3.5px] rounded-[19.5px] border-[1.5px] transition-opacity duration-150 motion-reduce:transition-none";
+  "pointer-events-none absolute -inset-[3.5px] rounded-[15.5px] border-[1.5px] sm:rounded-[19.5px] transition-opacity duration-150 motion-reduce:transition-none";
 
 export type ThemeSelectorProps = Omit<
   ComponentProps<"div">,
@@ -187,7 +187,7 @@ export function ThemeSelector({
       data-slot="theme-selector"
       {...props}
       className={cn(
-        "flex flex-wrap gap-5",
+        "flex min-w-0 gap-5",
         disabled && "pointer-events-none opacity-50",
         className,
       )}
@@ -199,7 +199,7 @@ export function ThemeSelector({
           <div
             key={theme.value}
             data-slot="theme-selector-option"
-            className="flex flex-col items-center gap-3"
+            className="flex min-w-0 flex-col items-center gap-3"
           >
             <button
               ref={(el) => {
@@ -217,11 +217,11 @@ export function ThemeSelector({
               onClick={() => select(theme.value)}
               onKeyDown={(event) => onKeyDown(event, index)}
               className={cn(
-                "group relative aspect-[4/3] w-40 shrink-0 cursor-pointer outline-none",
+                "group relative aspect-[4/3] w-40 max-w-full cursor-pointer outline-none",
                 itemClassName,
               )}
             >
-              <span className="@container absolute inset-0 overflow-hidden rounded-2xl bg-[#F4F4F9] transition-colors duration-150 group-hover:bg-[#EDEDF3] motion-reduce:transition-none dark:bg-[#262626] dark:group-hover:bg-[#2C2C2C]">
+              <span className="@container absolute inset-0 overflow-hidden rounded-xl sm:rounded-2xl bg-[#F4F4F9] transition-colors duration-150 group-hover:bg-[#EDEDF3] motion-reduce:transition-none dark:bg-[#262626] dark:group-hover:bg-[#2C2C2C]">
                 <Preview colors={theme.colors} />
               </span>
               <span
@@ -239,7 +239,7 @@ export function ThemeSelector({
                   active ? "opacity-100" : "opacity-0",
                 )}
               />
-              <span className="pointer-events-none absolute -inset-[7px] rounded-[23px] border-[1.5px] border-[#FC4C01]/0 transition-colors group-focus-visible:border-[#FC4C01]/60" />
+              <span className="pointer-events-none absolute -inset-[7px] rounded-[19px] border-[1.5px] sm:rounded-[23px] border-[#FC4C01]/0 transition-colors group-focus-visible:border-[#FC4C01]/60" />
             </button>
             {labels && (
               <span
